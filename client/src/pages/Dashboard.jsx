@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import LogoutButton from '../components/ui/LogoutButton';
 
 const POPULAR_APPS = [
   {
@@ -191,9 +192,9 @@ const BILLING_CYCLES = [
 ];
 
 function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     minimumFractionDigits: 2,
   }).format(amount);
 }
@@ -311,10 +312,10 @@ export default function Dashboard() {
   return (
     <div className="app">
       <header className="header">
-        <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex items-center justify-center gap-2 mb-4 w-full">
             <div className="userProfile">
                 <span className="userName">Welcome, {user?.name || 'User'}</span>
-                <button className="btn ghost" style={{ padding: '4px 12px', fontSize: '12px' }} onClick={logout}>Logout</button>
+                <LogoutButton />
             </div>
         </div>
         <h1 className="title">Subscriptions</h1>

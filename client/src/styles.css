@@ -616,6 +616,7 @@ body {
   letter-spacing: -0.03em;
   margin-bottom: 8px;
   background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -678,21 +679,72 @@ body {
 .flex { display: flex; }
 .items-center { align-items: center; }
 .justify-center { justify-content: center; }
-.min-h-screen { min-h-screen: 100vh; }
+.min-h-screen { min-height: 100vh; }
 .gap-2 { gap: 0.5rem; }
 .w-full { width: 100%; }
 
 .userProfile {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 8px 16px;
+  padding: 12px 24px;
   background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
   border-radius: 999px;
-  margin-bottom: 24px;
+  margin: 0 auto 24px auto;
+  width: 60vw;
+}
+
+@media (max-width: 768px) {
+  .userProfile {
+    width: 90vw;
+    padding: 10px 16px;
+  }
 }
 
 .userName {
   font-weight: 500;
   font-size: 14px;
+}
+
+.logout-button {
+  position: relative;
+  overflow: hidden;
+  padding: 8px 18px;
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: var(--danger);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  z-index: 1;
+}
+
+.logout-button:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+}
+
+.logout-text {
+  position: relative;
+  z-index: 2;
+}
+
+.logout-bubble {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background-color: rgba(248, 113, 113, 0.85); /* soft red */
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
 }
