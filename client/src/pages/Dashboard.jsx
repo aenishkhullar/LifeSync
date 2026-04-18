@@ -1,6 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from '../components/ui/LogoutButton';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../styles/datepicker.css';
+import {
+  fetchSubscriptions,
+  addSubscription,
+  updateSubscription as updateSubscriptionAPI,
+  deleteSubscription as deleteSubscriptionAPI,
+} from '../api/subscriptions';
 
 const POPULAR_APPS = [
   {
@@ -199,37 +208,49 @@ function formatCurrency(amount) {
   }).format(amount);
 }
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-const STORAGE_KEY = 'subs-calculator-data';
-
-function loadSubscriptions() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveSubscriptions(subs) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(subs));
-}
-
 export default function Dashboard() {
-  const { user, logout } = useAuth();
-  const [subscriptions, setSubscriptions] = useState(loadSubscriptions);
+  const { user } = useAuth();
+  const [subscriptions, setSubscriptions] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [selectedApp, setSelectedApp] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     customName: '',
     price: '',
     cycle: 'monthly',
     billingStartDate: new Date().toISOString().split('T')[0],
   });
+
+  // Load subscriptions from API on mount
+  const loadSubscriptionsFromAPI = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetchSubscriptions();
+      if (response.success) {
+        // Map backend data shape to frontend shape
+        const mapped = response.data.map((sub) => ({
+          id: sub._id,
+          appId: sub.appId || 'other',
+          name: sub.name,
+          price: sub.price,
+          cycle: sub.billingCycle,
+          billingStartDate: sub.billingStartDate,
+          color: sub.color || '#6b7280',
+        }));
+        setSubscriptions(mapped);
+      }
+    } catch (error) {
+      console.error('Failed to load subscriptions:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSubscriptionsFromAPI();
+  }, [loadSubscriptionsFromAPI]);
 
   const stats = useMemo(() => {
     let monthlyTotal = 0;
@@ -257,11 +278,6 @@ export default function Dashboard() {
     };
   }, [subscriptions]);
 
-  const updateSubscriptions = (newSubs) => {
-    setSubscriptions(newSubs);
-    saveSubscriptions(newSubs);
-  };
-
   const resetForm = () => {
     setFormData({ customName: '', price: '', cycle: 'monthly', billingStartDate: new Date().toISOString().split('T')[0] });
     setSelectedApp(null);
@@ -269,7 +285,7 @@ export default function Dashboard() {
     setEditingId(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const name = selectedApp === 'other' ? formData.customName.trim() : selectedApp?.name;
     if (!name || !formData.price) return;
@@ -278,19 +294,25 @@ export default function Dashboard() {
       appId: selectedApp === 'other' ? 'other' : selectedApp?.id,
       name,
       price: parseFloat(formData.price),
-      cycle: formData.cycle,
+      billingCycle: formData.cycle,
       billingStartDate: formData.billingStartDate,
       color: selectedApp === 'other' ? '#6b7280' : selectedApp?.color,
     };
 
-    if (editingId) {
-      updateSubscriptions(
-        subscriptions.map((s) => (s.id === editingId ? { ...s, ...subData } : s))
-      );
-    } else {
-      updateSubscriptions([...subscriptions, { id: generateId(), ...subData }]);
+    try {
+      setIsSaving(true);
+      if (editingId) {
+        await updateSubscriptionAPI(editingId, subData);
+      } else {
+        await addSubscription(subData);
+      }
+      await loadSubscriptionsFromAPI();
+      resetForm();
+    } catch (error) {
+      console.error('Failed to save subscription:', error);
+    } finally {
+      setIsSaving(false);
     }
-    resetForm();
   };
 
   const handleEdit = (sub) => {
@@ -306,9 +328,17 @@ export default function Dashboard() {
     setIsAdding(true);
   };
 
-  const handleDelete = (id) => {
-    updateSubscriptions(subscriptions.filter((s) => s.id !== id));
-    if (editingId === id) resetForm();
+  const handleDelete = async (id) => {
+    try {
+      setIsSaving(true);
+      await deleteSubscriptionAPI(id);
+      await loadSubscriptionsFromAPI();
+      if (editingId === id) resetForm();
+    } catch (error) {
+      console.error('Failed to delete subscription:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getMonthlyAmount = (sub) => {
@@ -446,11 +476,25 @@ export default function Dashboard() {
                   </div>
                   <div className="formGroup" style={{ gridColumn: '1 / -1' }}>
                     <label className="label">Billing Start Date</label>
-                    <input
-                      type="date"
+                    <DatePicker
                       className="input"
-                      value={formData.billingStartDate}
-                      onChange={(e) => setFormData({ ...formData, billingStartDate: e.target.value })}
+                      selected={formData.billingStartDate ? (function(){
+                        const [y, m, d] = formData.billingStartDate.split('-');
+                        return new Date(y, m - 1, d);
+                      })() : null}
+                      onChange={(date) => {
+                        if (date) {
+                          const yyyy = date.getFullYear();
+                          const mm = String(date.getMonth() + 1).padStart(2, '0');
+                          const dd = String(date.getDate()).padStart(2, '0');
+                          setFormData({ ...formData, billingStartDate: `${yyyy}-${mm}-${dd}` });
+                        } else {
+                          setFormData({ ...formData, billingStartDate: '' });
+                        }
+                      }}
+                      dateFormat="dd MMM yyyy"
+                      placeholderText="Select start date"
+                      showPopperArrow={false}
                     />
                   </div>
                 </div>
@@ -461,15 +505,19 @@ export default function Dashboard() {
                 <button
                   type="submit"
                   className="btn primaryLight"
-                  disabled={!selectedApp || !formData.price || (selectedApp === 'other' && !formData.customName.trim())}
+                  disabled={!selectedApp || !formData.price || (selectedApp === 'other' && !formData.customName.trim()) || isSaving}
                 >
-                  {editingId ? 'Update' : 'Add Subscription'}
+                  {isSaving ? 'Saving...' : editingId ? 'Update' : 'Add Subscription'}
                 </button>
               </div>
             </form>
           )}
 
-          {subscriptions.length === 0 && !isAdding ? (
+          {isLoading ? (
+            <div className="empty">
+              <p>Loading subscriptions...</p>
+            </div>
+          ) : subscriptions.length === 0 && !isAdding ? (
             <div className="empty">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -496,8 +544,26 @@ export default function Dashboard() {
                     </div>
                     <div className="subInfo">
                       <span className="subName">{sub.name}</span>
-                      <span className="subMeta">
+                      <span className="subMeta" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {BILLING_CYCLES.find((c) => c.id === sub.cycle)?.label}
+                        {sub.billingStartDate && (
+                          <div className="tooltip-container">
+                            <button type="button" className="info-icon" aria-label="Info">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                              </svg>
+                            </button>
+                            <div className="tooltip-content">
+                              Start Date: {(function(){
+                                const [y, m, d] = sub.billingStartDate.split('-');
+                                const dateObj = new Date(y, m - 1, d);
+                                return dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                              })()}
+                            </div>
+                          </div>
+                        )}
                       </span>
                     </div>
                     <div className="subPricing">
@@ -511,6 +577,7 @@ export default function Dashboard() {
                         className="iconBtn"
                         onClick={() => handleEdit(sub)}
                         aria-label="Edit subscription"
+                        disabled={isSaving}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
@@ -521,6 +588,7 @@ export default function Dashboard() {
                         className="iconBtn danger"
                         onClick={() => handleDelete(sub.id)}
                         aria-label="Delete subscription"
+                        disabled={isSaving}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />

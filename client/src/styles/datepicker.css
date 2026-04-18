@@ -1,0 +1,128 @@
+/* src/styles/datepicker.css */
+
+/* Date Picker Overrides */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  font-family: inherit !important;
+  color: #fff !important;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.react-datepicker__header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding-top: 12px !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header,
+.react-datepicker__day-name {
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+}
+
+.react-datepicker__day {
+  color: #cbd5e1 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: rgba(56, 189, 248, 0.8) !important; /* soft teal/blue */
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::before, 
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::after {
+  border-bottom-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+.react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle::before, 
+.react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle::after {
+  border-top-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+/* Tooltip CSS */
+.tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  background-color: #1e293b;
+  color: #e2e8f0;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 10px;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%; /* Position above */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+/* Arrow for tooltip */
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.info-icon {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.info-icon:hover {
+  opacity: 1;
+}
