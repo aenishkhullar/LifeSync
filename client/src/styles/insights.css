@@ -1,0 +1,392 @@
+/* ============================================
+   Insights Dashboard — Dark Glassmorphism
+   ============================================ */
+
+/* Page container */
+.insights {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 44px 20px 100px;
+}
+
+/* Back navigation row */
+.insightsNav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-focus);
+}
+
+/* Page header */
+.insightsHeader {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.insightsTitle {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.65) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.insightsSubtitle {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Responsive 2x2 grid */
+.insightsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+/* Individual insight card */
+.insightCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  /* Entrance animation */
+  animation: insightFadeIn 0.5s ease both;
+}
+
+.insightCard:nth-child(1) { animation-delay: 0.05s; }
+.insightCard:nth-child(2) { animation-delay: 0.12s; }
+.insightCard:nth-child(3) { animation-delay: 0.19s; }
+.insightCard:nth-child(4) { animation-delay: 0.26s; }
+
+@keyframes insightFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card header */
+.insightCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.insightIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.insightIcon.renewal {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+
+.insightIcon.overdue {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+}
+
+.insightIcon.growth {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.insightIcon.smart {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.insightCardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Card body */
+.insightBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual insight row */
+.insightRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--r-xs);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s ease;
+}
+
+.insightRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.insightDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.insightRowText {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.insightRowBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.insightRowBadge.soon {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.insightRowBadge.today {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.insightRowBadge.overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* Empty state within a card — no emojis, uses SVG icon */
+.insightEmpty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--r-xs);
+}
+
+.insightEmptySvg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+/* Spending growth – reduced, bold percentage */
+.growthDisplay {
+  text-align: center;
+  padding: 12px 0 4px;
+}
+
+.growthPercent {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.growthPercent.up {
+  color: #f87171;
+}
+
+.growthPercent.down {
+  color: #34d399;
+}
+
+.growthPercent.unchanged {
+  color: var(--muted);
+}
+
+.growthLabel {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.growthGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.growthStat {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--r-xs);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.growthStatLabel {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.growthStatValue {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.highDepContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.highDepContent .subIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+/* Smart alert row — blue info badge replaces emoji */
+.smartAlertRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--r-xs);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s ease;
+}
+
+.smartAlertRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Blue info badge — matches subscription card info icon style */
+.smartAlertBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--accent, #3b82f6);
+  opacity: 0.7;
+}
+
+.smartAlertMsg {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Loading state */
+.insightsLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  color: var(--muted);
+  gap: 16px;
+}
+
+/* Responsive — stack to single column on mobile */
+@media (max-width: 600px) {
+  .insights {
+    padding: 32px 16px 100px;
+  }
+
+  .insightsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .insightsTitle {
+    font-size: 24px;
+  }
+
+  .growthPercent {
+    font-size: 20px;
+  }
+}
+
+.highDepContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.budgetStatusValue {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.budgetStatusValue.exceeded {
+  color: #ff4d4d;
+}
+
+.budgetStatusValue.left {
+  color: #4ade80;
+}
+

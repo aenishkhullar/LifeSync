@@ -35,6 +35,10 @@ const subscriptionSchema = new mongoose.Schema(
             type: String,
             default: "#6b7280",
         },
+        category: {
+            type: String,
+            default: "Other",
+        },
     },
     {
         timestamps: true,

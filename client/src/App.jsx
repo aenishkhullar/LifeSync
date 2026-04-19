@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import InsightsDashboard from './pages/InsightsDashboard';
 import './styles.css';
 
 const AppRoutes = () => {
@@ -35,6 +36,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/insights" 
+        element={
+          <ProtectedRoute>
+            <InsightsDashboard />
           </ProtectedRoute>
         } 
       />

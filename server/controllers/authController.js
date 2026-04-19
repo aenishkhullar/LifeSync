@@ -33,6 +33,7 @@ const registerUser = async (req, res, next) => {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
+                    monthlyBudget: user.monthlyBudget,
                 },
             });
         } else {
@@ -66,6 +67,7 @@ const loginUser = async (req, res, next) => {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
+                    monthlyBudget: user.monthlyBudget,
                 },
             });
         } else {

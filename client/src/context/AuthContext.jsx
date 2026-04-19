@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import { loginUser, registerUser, getUserProfile } from '../api/auth';
+import { loginUser, registerUser, getUserProfile, updateUserBudget } from '../api/auth';
 
 const AuthContext = createContext();
 
@@ -97,6 +97,26 @@ export const AuthProvider = ({ children }) => {
         setError(null);
     };
 
+    const updateBudgetContext = async (budgetAmount) => {
+        try {
+            console.log("Calling budget API with amount:", budgetAmount);
+            const response = await updateUserBudget(budgetAmount);
+            console.log("Budget API Response:", response);
+            if (response.success) {
+                setUser((prev) => {
+                    const newUser = { ...prev, monthlyBudget: response.monthlyBudget };
+                    console.log("Updated Front-end User State:", newUser);
+                    return newUser;
+                });
+                return { success: true };
+            }
+            return { success: false };
+        } catch (err) {
+            console.error('Failed to update budget:', err);
+            return { success: false, message: err.response?.data?.message || 'Failed to update budget' };
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -108,6 +128,7 @@ export const AuthProvider = ({ children }) => {
                 register,
                 logout,
                 loadUser,
+                updateBudgetContext,
                 isAuthenticated: !!token,
             }}
         >

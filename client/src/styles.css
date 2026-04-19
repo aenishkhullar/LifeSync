@@ -318,7 +318,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.04);
   border: none;
   border-radius: var(--r-xs);
   color: var(--muted);
@@ -336,12 +336,67 @@ body {
   color: var(--danger);
 }
 
+.iconBtn.profile:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent);
+}
+
+.iconBtn.success:hover {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+
 .iconBtn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4);
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 /* Form */
+
 .form {
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--r-sm);
@@ -706,40 +761,4 @@ body {
   font-size: 14px;
 }
 
-.logout-button {
-  position: relative;
-  overflow: hidden;
-  padding: 8px 18px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.5);
-  color: var(--danger);
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.3s ease;
-  z-index: 1;
-}
 
-.logout-button:focus-visible {
-  outline: 2px solid var(--danger);
-  outline-offset: 2px;
-}
-
-.logout-text {
-  position: relative;
-  z-index: 2;
-}
-
-.logout-bubble {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  background-color: rgba(248, 113, 113, 0.85); /* soft red */
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-}

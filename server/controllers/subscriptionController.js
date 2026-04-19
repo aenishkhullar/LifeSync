@@ -5,7 +5,7 @@ import Subscription from "../models/Subscription.js";
 // @access  Private
 const createSubscription = async (req, res) => {
     try {
-        const { name, price, billingCycle, billingStartDate, appId, color } = req.body;
+        const { name, price, billingCycle, billingStartDate, appId, color, category } = req.body;
 
         if (!name || price === undefined || !billingStartDate) {
             res.status(400);
@@ -20,6 +20,7 @@ const createSubscription = async (req, res) => {
             billingStartDate,
             appId: appId || "other",
             color: color || "#6b7280",
+            category: category || "Other",
         });
 
         res.status(201).json({
@@ -74,7 +75,7 @@ const updateSubscription = async (req, res) => {
             throw new Error("Not authorized to update this subscription");
         }
 
-        const { name, price, billingCycle, billingStartDate, appId, color } = req.body;
+        const { name, price, billingCycle, billingStartDate, appId, color, category } = req.body;
 
         subscription.name = name ?? subscription.name;
         subscription.price = price ?? subscription.price;
@@ -82,6 +83,7 @@ const updateSubscription = async (req, res) => {
         subscription.billingStartDate = billingStartDate ?? subscription.billingStartDate;
         subscription.appId = appId ?? subscription.appId;
         subscription.color = color ?? subscription.color;
+        subscription.category = category ?? subscription.category;
 
         const updatedSubscription = await subscription.save();
 

@@ -13,6 +13,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    console.log("Interceptor attaching Token:", token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,6 +36,11 @@ export const loginUser = async (credentials) => {
 
 export const getUserProfile = async () => {
   const response = await api.get('/user/profile');
+  return response.data;
+};
+
+export const updateUserBudget = async (budgetAmount) => {
+  const response = await api.put('/user/budget', { budget: budgetAmount });
   return response.data;
 };
 
