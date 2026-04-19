@@ -170,4 +170,4 @@ Distributed under the MIT License. See `LICENSE` for details.
 
 ---
 
-Developed by [Your Name / Studio]
+Developed by [Aenish Khullar/ Altawebstudio.xyz]
