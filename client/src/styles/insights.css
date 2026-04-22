@@ -41,8 +41,12 @@
 
 /* Page header */
 .insightsHeader {
-  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
   margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
 .insightsTitle {
@@ -437,5 +441,192 @@
 
 .credit a:hover {
   color: var(--text);
+
+}
+
+/* Export PDF Button */
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 6px; /* Added margin as requested */
+}
+
+@media (max-width: 600px) {
+  .insightsHeader {
+    justify-content: center;
+    text-align: center;
+  }
+  .exportBtn {
+    margin-top: 10px;
+  }
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: #10b981; /* Emerald/Green theme for success/export */
+  border-color: #10b981;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.exportBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.exportBtn.loading svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Hidden Report Section for PDF Export */
+#report-section {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 800px; /* Approximately A4 width */
+  background: #ffffff;
+  color: #111827;
+  padding: 40px;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.reportHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.reportTitle h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0;
+}
+
+.reportTitle p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+}
+
+.reportDate {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: right;
+}
+
+.reportSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.reportSummaryCard {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.reportSummaryLabel {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.reportSummaryValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.reportSectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reportTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+}
+
+.reportTable th {
+  text-align: left;
+  padding: 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.reportTable td {
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.reportInsights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.reportInsightBlock {
+  background: #f9fafb;
+  border-left: 4px solid #3b82f6;
+  padding: 16px;
+  border-radius: 0 12px 12px 0;
+}
+
+.reportInsightTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.reportInsightText {
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.reportFooter {
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
 }
 

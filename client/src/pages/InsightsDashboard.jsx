@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { fetchSubscriptions } from '../api/subscriptions';
 import {
   LineChart,
@@ -49,6 +51,7 @@ export default function InsightsDashboard() {
   const budget = user?.monthlyBudget || 0;
   const [subscriptions, setSubscriptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   const loadSubscriptions = useCallback(async () => {
     try {
@@ -132,6 +135,53 @@ export default function InsightsDashboard() {
   const growth = useMemo(() => getSpendingGrowth(subscriptions, budget), [subscriptions, budget]);
   const smartAlerts = useMemo(() => getSmartAlerts(subscriptions, budget), [subscriptions, budget]);
 
+  const yearlySpend = useMemo(() => {
+    return subscriptions.reduce((sum, sub) => {
+      const mult = sub.cycle === 'yearly' ? 1 : sub.cycle === 'monthly' ? 12 : 52.14;
+      return sum + (sub.price * mult);
+    }, 0);
+  }, [subscriptions]);
+
+  const handleExportPDF = async () => {
+    try {
+      setIsExporting(true);
+      const input = document.getElementById('report-section');
+      
+      // Capture canvas
+      const canvas = await html2canvas(input, {
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      
+      // A4 dimensions in mm: 210 x 297
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      
+      const finalWidth = imgWidth * ratio;
+      const finalHeight = imgHeight * ratio;
+      
+      const xOffset = (pdfWidth - finalWidth) / 2;
+      const yOffset = 20; // Margin from top
+      
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+      pdf.save('lifesync-report.pdf');
+    } catch (error) {
+      console.error('PDF Export failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="insights">
@@ -158,8 +208,33 @@ export default function InsightsDashboard() {
 
       {/* Header */}
       <header className="insightsHeader">
-        <h1 className="insightsTitle">Insights</h1>
-        <p className="insightsSubtitle">Smart analysis of your subscriptions</p>
+        <div className="headerLeft">
+          <h1 className="insightsTitle">Insights</h1>
+          <p className="insightsSubtitle">Smart analysis of your subscriptions</p>
+        </div>
+        <button 
+          className={`exportBtn ${isExporting ? 'loading' : ''}`} 
+          onClick={handleExportPDF}
+          disabled={isExporting || subscriptions.length === 0}
+        >
+          {isExporting ? (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Exporting...
+            </>
+          ) : (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Export PDF
+            </>
+          )}
+        </button>
       </header>
 
       {/* Main Dashboard Layout */}
@@ -442,6 +517,106 @@ export default function InsightsDashboard() {
 
         </div>
 
+      </div>
+
+      {/* Hidden Report Section for PDF Export */}
+      <div id="report-section">
+        <div className="reportHeader">
+          <div className="reportTitle">
+            <h1>LifeSync</h1>
+            <p>Subscription Report</p>
+          </div>
+          <div className="reportDate">
+            {new Date().toLocaleDateString('en-IN', { 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}
+          </div>
+        </div>
+
+        <div className="reportSummaryGrid">
+          <div className="reportSummaryCard">
+            <span className="reportSummaryLabel">Monthly Spend</span>
+            <div className="reportSummaryValue">{formatCurrency(growth.currentMonth)}</div>
+          </div>
+          <div className="reportSummaryCard">
+            <span className="reportSummaryLabel">Yearly Spend</span>
+            <div className="reportSummaryValue">{formatCurrency(yearlySpend)}</div>
+          </div>
+          <div className="reportSummaryCard">
+            <span className="reportSummaryLabel">Active Subscriptions</span>
+            <div className="reportSummaryValue">{subscriptions.length}</div>
+          </div>
+          <div className="reportSummaryCard">
+            <span className="reportSummaryLabel">Monthly Budget</span>
+            <div className="reportSummaryValue">{formatCurrency(budget)}</div>
+          </div>
+        </div>
+
+        <div className="reportTableSection">
+          <h2 className="reportSectionTitle">Subscriptions Details</h2>
+          <table className="reportTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Cycle</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subscriptions.length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No subscriptions found</td>
+                </tr>
+              ) : (
+                subscriptions.map((sub, i) => (
+                  <tr key={i}>
+                    <td>{sub.name}</td>
+                    <td>{formatCurrency(sub.price)}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{sub.cycle}</td>
+                    <td>{sub.category}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="reportInsightsSection">
+          <h2 className="reportSectionTitle">Insights & Alerts</h2>
+          <div className="reportInsights">
+            <div className="reportInsightBlock">
+              <h3 className="reportInsightTitle">Category Contribution</h3>
+              <div className="reportInsightText">
+                {categoryData.length > 0 ? (
+                  categoryData.slice(0, 3).map((c, i) => (
+                    <div key={i} style={{ marginBottom: '4px' }}>
+                      • {c.name}: {c.percent}% ({formatCurrency(c.value)})
+                    </div>
+                  ))
+                ) : "No category data available"}
+              </div>
+            </div>
+            <div className="reportInsightBlock" style={{ borderLeftColor: '#ef4444' }}>
+              <h3 className="reportInsightTitle">Active Alerts</h3>
+              <div className="reportInsightText">
+                {smartAlerts.length > 0 ? (
+                  smartAlerts.map((a, i) => (
+                    <div key={i} style={{ marginBottom: '4px' }}>
+                      • {a.message}
+                    </div>
+                  ))
+                ) : "All systems nominal. No alerts."}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="reportFooter">
+          Generated by LifeSync Subscription Manager • altawebstudio.xyz
+        </div>
       </div>
 
       {/* Credit footer */}
