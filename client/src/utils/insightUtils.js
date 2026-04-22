@@ -122,22 +122,22 @@ export function getBudgetStatus(total, budget) {
 }
 
 /**
- * Category Contribution — identifies top spending category.
+ * Category Contribution — identifies top spending category for the current month.
  */
 export function getCategoryInsight(subscriptions) {
   if (!subscriptions || subscriptions.length === 0) return null;
 
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
   const categoryTotals = {};
 
   subscriptions.forEach((sub) => {
-    const category = sub.category || 'Other';
-    const mult = CYCLE_MULTIPLIER_TO_MONTHLY[sub.cycle] || 1;
-    const monthlyAmount = Number(sub.price) * mult;
-
-    if (!categoryTotals[category]) {
-      categoryTotals[category] = 0;
+    const billedThisMonth = calculateActualMonthlySpend([sub], currentYear, currentMonth);
+    if (billedThisMonth > 0) {
+      const category = sub.category || 'Other';
+      categoryTotals[category] = (categoryTotals[category] || 0) + billedThisMonth;
     }
-    categoryTotals[category] += monthlyAmount;
   });
 
   let topCategory = null;
@@ -162,7 +162,53 @@ export function getCategoryInsight(subscriptions) {
 }
 
 /**
- * Spending Growth — compare current month active total vs previous month.
+ * Calculates the actual spend for a specific month/year based on billing cycles.
+ * Respects billingStartDate and billingCycle.
+ * Monthly: Billed every month after start.
+ * Yearly: Billed only in the anniversary month.
+ * Weekly: Billed every week (roughly 4-5 times a month).
+ */
+export function calculateActualMonthlySpend(subscriptions, year, month) {
+  const targetStart = new Date(year, month, 1);
+  const targetEnd = new Date(year, month + 1, 0);
+  let total = 0;
+
+  subscriptions.forEach((sub) => {
+    const start = parseDate(sub.billingStartDate);
+    if (!start || start > targetEnd) return;
+
+    const price = Number(sub.price) || 0;
+
+    if (sub.cycle === 'monthly') {
+      // Billed every month after start
+      total += price;
+    } else if (sub.cycle === 'yearly') {
+      // Billed only in the month of anniversary
+      if (start.getMonth() === month) {
+        total += price;
+      }
+    } else if (sub.cycle === 'weekly') {
+      // Count how many times the day of week falls in this month
+      let count = 0;
+      let curr = new Date(start);
+      // Advance to the first occurrence in or after targetStart
+      while (curr < targetStart) {
+        curr.setDate(curr.getDate() + 7);
+      }
+      // Count occurrences within the target month
+      while (curr <= targetEnd) {
+        count++;
+        curr.setDate(curr.getDate() + 7);
+      }
+      total += price * count;
+    }
+  });
+
+  return total;
+}
+
+/**
+ * Spending Growth — compare current month actual total vs previous month.
  * Returns { currentMonth, previousMonth, percentChange, direction, highDependency, lowUsage, budgetStatus }.
  */
 export function getSpendingGrowth(subscriptions, userBudget = 0) {
@@ -177,22 +223,8 @@ export function getSpendingGrowth(subscriptions, userBudget = 0) {
     prevYear -= 1;
   }
 
-  function monthlyTotal(subs, year, month) {
-    let total = 0;
-    subs.forEach((sub) => {
-      const start = parseDate(sub.billingStartDate);
-      // Only count if billing started on or before this month
-      if (start && (start.getFullYear() > year || (start.getFullYear() === year && start.getMonth() > month))) {
-        return;
-      }
-      const mult = CYCLE_MULTIPLIER_TO_MONTHLY[sub.cycle] || 1;
-      total += sub.price * mult;
-    });
-    return total;
-  }
-
-  const current = monthlyTotal(subscriptions, currentYear, currentMonth);
-  const previous = monthlyTotal(subscriptions, prevYear, prevMonth);
+  const current = calculateActualMonthlySpend(subscriptions, currentYear, currentMonth);
+  const previous = calculateActualMonthlySpend(subscriptions, prevYear, prevMonth);
 
   let percentChange = 0;
   let direction = 'unchanged';
@@ -208,26 +240,27 @@ export function getSpendingGrowth(subscriptions, userBudget = 0) {
   // Enhancements
   let highDependency = null;
   if (current > 0) {
-    const sorted = [...subscriptions].sort((a, b) => {
-      const ma = a.price * (CYCLE_MULTIPLIER_TO_MONTHLY[a.cycle] || 1);
-      const mb = b.price * (CYCLE_MULTIPLIER_TO_MONTHLY[b.cycle] || 1);
-      return mb - ma;
-    });
-    const top = sorted[0];
-    const topMonthly = top.price * (CYCLE_MULTIPLIER_TO_MONTHLY[top.cycle] || 1);
-    const pct = (topMonthly / current) * 100;
+    // For "High Dependency", we might still want to look at "monthly equivalent" 
+    // to see which sub is most expensive overall, OR just what's most expensive THIS month.
+    // Let's stick to what's billed THIS month for consistency with the "current" total.
+    const sorted = [...subscriptions]
+      .map(sub => ({ ...sub, billedThisMonth: calculateActualMonthlySpend([sub], currentYear, currentMonth) }))
+      .sort((a, b) => b.billedThisMonth - a.billedThisMonth);
     
-    highDependency = {
-      name: top.name,
-      appId: top.appId,
-      color: top.color,
-      percentage: pct.toFixed(0),
-      message: `${top.name} makes up ${pct.toFixed(0)}% of your monthly spend`
-    };
+    const top = sorted[0];
+    if (top && top.billedThisMonth > 0) {
+      const pct = (top.billedThisMonth / current) * 100;
+      highDependency = {
+        name: top.name,
+        appId: top.appId,
+        color: top.color,
+        percentage: pct.toFixed(0),
+        message: `${top.name} makes up ${pct.toFixed(0)}% of your spend this month`
+      };
+    }
   }
 
   let lowUsage = null;
-  // Condition: subscriptions.length >= 4 AND totalSpend < 300
   if (subscriptions.length >= 4 && current < 300) {
     lowUsage = {
       message: "You have multiple subscriptions but low total usage"
