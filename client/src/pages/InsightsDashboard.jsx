@@ -522,9 +522,12 @@ export default function InsightsDashboard() {
       {/* Hidden Report Section for PDF Export */}
       <div id="report-section">
         <div className="reportHeader">
-          <div className="reportTitle">
-            <h1>LifeSync</h1>
-            <p>Subscription Report</p>
+          <div className="reportBrand">
+            <img src="/logo.svg" alt="LifeSync Logo" className="reportLogo" />
+            <div className="reportTitle">
+              <h1>LifeSync</h1>
+              <p>Subscription Report</p>
+            </div>
           </div>
           <div className="reportDate">
             {new Date().toLocaleDateString('en-IN', { 

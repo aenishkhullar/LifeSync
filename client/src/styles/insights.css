@@ -514,6 +514,18 @@
   margin-bottom: 30px;
 }
 
+.reportBrand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.reportLogo {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+}
+
 .reportTitle h1 {
   font-size: 28px;
   font-weight: 800;

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- Main gradient: deep purple to electric blue -->
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#00D4FF"/>
+    </linearGradient>
+
+    <!-- Horizontal gradient for beam -->
+    <linearGradient id="gradH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#00D4FF"/>
+    </linearGradient>
+
+    <!-- Clip to square -->
+    <clipPath id="sq">
+      <rect width="512" height="512"/>
+    </clipPath>
+  </defs>
+
+  <!-- Black background -->
+  <rect width="512" height="512" fill="#000000" rx="80"/>
+
+  <g clip-path="url(#sq)" stroke="none">
+
+    <!-- === VERTICAL PILLAR === -->
+    <!-- Thin center stem -->
+    <rect x="249" y="190" width="14" height="230" rx="7" fill="url(#grad)"/>
+
+    <!-- Pivot diamond / knot at top of stem -->
+    <rect x="244" y="180" width="24" height="24" rx="6" fill="url(#grad)" transform="rotate(45 256 192)"/>
+
+    <!-- === BASE === -->
+    <!-- Horizontal base bar -->
+    <rect x="170" y="412" width="172" height="16" rx="8" fill="url(#gradH)"/>
+
+    <!-- Base feet (left) -->
+    <rect x="160" y="420" width="36" height="12" rx="6" fill="url(#grad)"/>
+    <!-- Base feet (right) -->
+    <rect x="316" y="420" width="36" height="12" rx="6" fill="url(#gradH)"/>
+
+    <!-- === BEAM === -->
+    <!-- Main horizontal beam -->
+    <rect x="118" y="188" width="276" height="12" rx="6" fill="url(#gradH)"/>
+
+    <!-- === LEFT PAN STRINGS === -->
+    <!-- Left string 1 -->
+    <line x1="148" y1="200" x2="132" y2="288" stroke="url(#grad)" stroke-width="5" stroke-linecap="round"/>
+    <!-- Left string 2 -->
+    <line x1="178" y1="200" x2="194" y2="288" stroke="url(#grad)" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- === RIGHT PAN STRINGS === -->
+    <!-- Right string 1 -->
+    <line x1="334" y1="200" x2="318" y2="288" stroke="url(#gradH)" stroke-width="5" stroke-linecap="round"/>
+    <!-- Right string 2 -->
+    <line x1="364" y1="200" x2="380" y2="288" stroke="url(#gradH)" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- === LEFT PAN (arc bowl) === -->
+    <path d="M 120 290 Q 163 330 206 290" stroke="url(#grad)" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+    <!-- === RIGHT PAN (arc bowl) === -->
+    <path d="M 306 290 Q 349 330 392 290" stroke="url(#gradH)" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+    <!-- Pan connecting top line left -->
+    <line x1="120" y1="290" x2="206" y2="290" stroke="url(#grad)" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Pan connecting top line right -->
+    <line x1="306" y1="290" x2="392" y2="290" stroke="url(#gradH)" stroke-width="5" stroke-linecap="round"/>
+
+  </g>
+</svg>
