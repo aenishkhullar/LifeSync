@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import InsightsDashboard from './pages/InsightsDashboard';
+import LandingPage from './pages/LandingPage';
 import './styles.css';
 
 const AppRoutes = () => {
@@ -48,8 +49,10 @@ const AppRoutes = () => {
         } 
       />
 
+      {/* Landing Page */}
+      <Route path="/" element={<LandingPage />} />
+      
       {/* Redirects */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
